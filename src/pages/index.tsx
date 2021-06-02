@@ -1,4 +1,5 @@
 import { GetStaticProps } from 'next';
+import Head from 'next/Head';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -24,9 +25,18 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-// export default function Home() {
-//   // TODO
-// }
+export default function Home(): JSX.Element {
+  return (
+    <>
+      <Head>
+        <title>Home | spacetravelling</title>
+      </Head>
+      <main>
+        <p>Hello</p>
+      </main>
+    </>
+  );
+}
 
 // export const getStaticProps = async () => {
 //   // const prismic = getPrismicClient();
@@ -34,3 +44,5 @@ interface HomeProps {
 
 //   // TODO
 // };
+
+// Sobre inclusão de JSX.Element: https://stackoverflow.com/questions/56708330/missing-return-type-on-function-for-every-react-class-method
