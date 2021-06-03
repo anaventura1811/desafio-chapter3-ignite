@@ -1,6 +1,5 @@
 import { GetStaticProps } from 'next';
-import Head from 'next/Head';
-
+import Head from 'next/head';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -29,9 +28,9 @@ export default function Home(): JSX.Element {
   return (
     <>
       <Head>
-        <title>Home | spacetravelling</title>
+        <title>Home | spacetravelling.</title>
       </Head>
-      <main>
+      <main className={styles.postsContainer}>
         <p>Hello</p>
       </main>
     </>
