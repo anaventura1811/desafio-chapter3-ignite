@@ -1,6 +1,6 @@
 import Prismic from '@prismicio/client';
-// import { RichText } from 'prismic-dom';
 import format from 'date-fns/format';
+import ptBR from 'date-fns/locale/pt-BR';
 import Head from 'next/head';
 import Link from 'next/link';
 import { GetStaticProps } from 'next';
@@ -25,10 +25,6 @@ interface PostPagination {
   results: Post[];
 }
 
-// type Preview = {
-//   preview: boolean;
-// };
-
 interface HomeProps {
   postsPagination: PostPagination;
   // preview: boolean;
@@ -40,7 +36,10 @@ const handleNewPosts = (document: Post[]): Post[] => {
       uid: post.uid,
       first_publication_date: format(
         new Date(post.first_publication_date),
-        'd MMM YYY'
+        'd MMM YYY',
+        {
+          locale: ptBR,
+        }
       ).toLowerCase(),
       data: {
         author: post.data.author,
@@ -52,12 +51,10 @@ const handleNewPosts = (document: Post[]): Post[] => {
   return posts;
 };
 
-export default function Home({
-  postsPagination, // preview,
-}: HomeProps): JSX.Element {
+export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<Post[]>([]);
   const [prismicNextPage, setPrismicNextPage] = useState('');
-  const [preview, setPreview] = useState(Boolean);
+  // const [preview, setPreview] = useState(Boolean);
 
   useEffect(() => {
     setPosts(postsPagination.results);
@@ -82,13 +79,12 @@ export default function Home({
       <main className={styles.postsContainer}>
         <div>
           {postsPagination.results.map(post => (
-            <Link href={`/posts/${post.uid}`} key={post.uid}>
+            <Link href={`/post/${post.uid}`} key={post.uid}>
               <a>
                 <p>
-                  {format(
-                    new Date(post.first_publication_date),
-                    'd MMM YYY'
-                  ).toLowerCase()}
+                  {format(new Date(post.first_publication_date), 'd MMM YYY', {
+                    locale: ptBR,
+                  }).toLowerCase()}
                 </p>
                 <strong>{post.data.title}</strong>
                 <i>{post.data.subtitle}</i>
@@ -104,22 +100,12 @@ export default function Home({
             </button>
           </div>
         )}
-        {(preview as boolean) && (
-          <aside>
-            <Link href="/api/exit-preview">
-              <a>Sair do modo Preview</a>
-            </Link>
-          </aside>
-        )}
       </main>
     </>
   );
 }
 
-export const getStaticProps: GetStaticProps = async ({
-  preview = false,
-  previewData,
-}) => {
+export const getStaticProps: GetStaticProps = async ({ previewData }) => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     [Prismic.predicates.at('document.type', 'publication')],
@@ -129,7 +115,7 @@ export const getStaticProps: GetStaticProps = async ({
         'publication.author',
         'publication.subtitle',
       ],
-      pageSize: 4,
+      pageSize: 10,
       page: 1,
       ref: previewData?.ref ?? null,
     }
@@ -147,8 +133,6 @@ export const getStaticProps: GetStaticProps = async ({
     };
   });
 
-  // const postsPagination = postsResponse.total_results_size;
-  // // eslint-disable-next-line no-console
   // console.log(JSON.stringify(postsPagination));
 
   return {
@@ -157,7 +141,6 @@ export const getStaticProps: GetStaticProps = async ({
         next_page: postsResponse.next_page,
         results: posts,
       },
-      preview,
     },
     revalidate: 3 * 60 * 60, // a cada 3h
   };
